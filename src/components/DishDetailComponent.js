@@ -22,70 +22,74 @@ class CommentForm extends Component {
     toggleModal() {
         this.setState({
             isModalOpen: !this.state.isModalOpen
-        })
+        });
     }
 
     handleSubmit(values) {
-        console.log('Current State is: ' + JSON.stringify(values));
-        alert('Current State is: ' + JSON.stringify(values));
         this.toggleModal();
-        // event.preventDefault();
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
 
     render() {
         return (
-            <div>
-                <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
-                    <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
-                    <ModalBody>
-                        <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
-                            <Row className="form-group">
-                                <Label htmlFor="rating" md={12}>Rating</Label>
-                                <Col md={12}>
-                                    <Control.select model=".rating" id="rating" name="rating"
-                                        className="form-control">
-                                        <option value="two">1</option>
-                                        <option value="two">2</option>
-                                        <option value="two">3</option>
-                                        <option value="two">4</option>
-                                        <option value="two">5</option>
-                                    </Control.select>
-                                </Col>
-                                <Label htmlFor="author" md={12}>Your Name</Label>
-                                <Col md={12}>
-                                    <Control.text model=".author" id="author" name="author"
-                                        className="form-control"
-                                        placeholder="Your Name"
-                                        validators={{
-                                            required, minLength: minLength(3), maxLength: maxLength(15)
-                                        }}
-                                    />
-                                    <Errors
-                                        className="text-danger"
-                                        model=".author"
-                                        show="touched"
-                                        messages={{
-                                            required: 'Required ',
-                                            minLength: 'Must be greater than 2 characters',
-                                            maxLength: 'Must be 15 characters or less'
-                                        }}
-                                    />
-                                </Col>
-                                <Label htmlFor="comment" md={12}>Comment</Label>
-                                <Col md={12}>
-                                    <Control.textarea model=".notes" id="comment" name="comment"
-                                        className="form-control" rows="6"
-                                    />
-                                </Col>
-                            </Row>
-                            <Button color="primary" type="submit">Submit</Button>
-                        </LocalForm>
-                    </ModalBody>
-                </Modal>
-                <div className="mt-3">
-                    <Button onClick={this.toggleModal} outline color="secondary" className="fa fa-pencil fa-lg"> Submit Form</Button>
+            < >
+                <div>
+                    <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+                        <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+                        <ModalBody>
+                            <LocalForm onSubmit={values => this.handleSubmit(values)}>
+                                <Row className="form-group">
+                                    <Label htmlFor="rating" md={12}>Rating</Label>
+                                    <Col md={12}>
+                                        <Control.select model=".rating" id="rating" name="rating"
+                                            className="form-control">
+                                            <option value="two">1</option>
+                                            <option value="two">2</option>
+                                            <option value="two">3</option>
+                                            <option value="two">4</option>
+                                            <option value="two">5</option>
+                                        </Control.select>
+                                    </Col>
+                                </Row>
+                                <Row className="form-group">
+                                    <Label htmlFor="author" md={12}>Your Name</Label>
+                                    <Col md={12}>
+                                        <Control.text model=".author" id="author" name="author"
+                                            className="form-control"
+                                            placeholder="Your Name"
+                                            validators={{
+                                                required, minLength: minLength(3), maxLength: maxLength(15)
+                                            }}
+                                        />
+                                        <Errors
+                                            className="text-danger"
+                                            model=".author"
+                                            show="touched"
+                                            messages={{
+                                                required: 'Required ',
+                                                minLength: 'Must be greater than 2 characters',
+                                                maxLength: 'Must be 15 characters or less'
+                                            }}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row className="form-group">
+                                    <Label htmlFor="comment" md={12}>Comment</Label>
+                                    <Col md={12}>
+                                        <Control.textarea model=".comment" id="comment" name="comment"
+                                            className="form-control" rows="6"
+                                        />
+                                    </Col>
+                                </Row>
+                                <Button value="submit" color="primary" type="submit">Submit</Button>
+                            </LocalForm>
+                        </ModalBody>
+                    </Modal>
+                    <div className="mt-3">
+                        <Button onClick={this.toggleModal} outline color="secondary" className="fa fa-pencil fa-lg"> Submit Form</Button>
+                    </div>
                 </div>
-            </div>
+            </>
         )
     }
 }
@@ -104,7 +108,7 @@ function RenderDish({ dish }) {
     );
 }
 
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, dishId }) {
     if (comments != null) {
         return (
             <div className="col-md-5 col-12 m-1">
@@ -115,7 +119,7 @@ function RenderComments({ comments }) {
                             <li>{comment.comment}<br></br>--{comment.author}, {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(Date.parse(comment.date)))}</li>
                         </ul></li>
                 )}
-                    <CommentForm />
+                    <CommentForm dishId={dishId} addComment={addComment} />
                 </ul>
             </div>
         );
@@ -144,7 +148,9 @@ const DishDetail = (props) => {
                 </div>
                 <div className="row">
                     <RenderDish dish={props.dish} />
-                    <RenderComments comments={props.comments} />
+                    <RenderComments comments={props.comments}
+                        addComment={props.addComment}
+                        dishId={props.dish.id} />
                 </div>
             </div>
         );
