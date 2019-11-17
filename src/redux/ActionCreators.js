@@ -7,6 +7,41 @@ export const addComment = (comment) => ({
     payload: comment
 });
 
+export const postFeedback = (feedback) => (dispatch) => {
+    const data = {
+        ...feedback,
+        date: new Date()
+    }
+
+    return fetch(baseURL + 'feedback', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => {
+            if (response.ok) {
+                return response;
+            }
+            else {
+                let error = new Error('Error ' + response.status + ': ' + response.statusText)
+                error.response = response;
+                throw error;
+            }
+        },
+            error => {
+                let errmess = new Error(error.message);
+                throw errmess;
+            })
+        .then(response => response.json())
+        .catch(error => {
+            console.log('Post comments', error.message)
+            alert('Your comment could not be posted\nError: ' + error.message)
+        })
+}
+
 export const postComment = (dishId, rating, author, comment) => (dispatch) => {
 
     const newComment = {
@@ -47,6 +82,7 @@ export const postComment = (dishId, rating, author, comment) => (dispatch) => {
         })
 }
 
+//Dishes
 export const fetchDishes = () => (dispatch) => {
     dispatch(dishesLoading(true));
 
@@ -84,6 +120,7 @@ export const addDishes = (dishes) => ({
     payload: dishes
 });
 
+//Comments
 export const fetchComments = () => (dispatch) => {
     return fetch(baseURL + 'comments')
         .then(response => {
@@ -115,6 +152,7 @@ export const addComments = (comments) => ({
     payload: comments
 });
 
+//Promos
 export const fetchPromos = () => (dispatch) => {
     dispatch(promosLoading());
 
@@ -151,3 +189,41 @@ export const addPromos = (promos) => ({
     type: ActionTypes.ADD_PROMOS,
     payload: promos
 });
+
+//Leaders
+export const fetchLeaders = () => (dispatch) => {
+    dispatch(leadersLoading());
+    return fetch(baseURL + 'leaders')
+        .then(response => {
+            if (response.ok) {
+                return response;
+            }
+            else {
+                let error = new Error('Error ' + response.status + ': ' + response.statusText)
+                error.response = response;
+                throw error;
+            }
+        },
+            error => {
+                let errmess = new Error(error.message);
+                throw errmess;
+            })
+        .then(response => response.json())
+        .then(leaders => dispatch(addLeaders(leaders)))
+        .catch(error => dispatch(commentsFailed(error.message)));
+}
+
+export const leadersLoading = (leaders) => ({
+    type: ActionTypes.LEADERS_LOADING
+})
+
+export const leadersFailed = (errmess) => ({
+    type: ActionTypes.LEADERS_FAILED,
+    payload: errmess
+});
+
+export const addLeaders = (leaders) => ({
+    type: ActionTypes.ADD_LEADERS,
+    payload: leaders
+});
+
